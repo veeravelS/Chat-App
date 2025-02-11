@@ -4,9 +4,8 @@ const getUserDetailsFromToken = require("../helper/getUserDetailsFromToken")
 async function updateUserDetails(request,response){
    try {
       const token = request.cookies.token || ""
-      
+      console.log("controller",token)
       const user = await getUserDetailsFromToken(token)
-
       const {name,profile_pic} = request.body
 
       const  updateUser = await UserModel.updateOne({_id:user._id},{
