@@ -3,10 +3,10 @@ import { Toaster } from "react-hot-toast";
 import { useEffect } from "react";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { logout } from "./store/userSlice";
+import { logout, setOnlineUser, setSocketConnection } from "./store/userSlice";
 import Sidebar from "./components/Sidebar";
 import logo from "./assets/logo.png"
-
+import io from "socket.io-client"
 const AppLayout = () => {
   const user = useSelector((state) => state.user.userDetails);
   const dispatch = useDispatch();
@@ -31,6 +31,23 @@ const AppLayout = () => {
     fetchUserDetails();
   }, []);
 
+  // socket connection
+  useEffect(()=>{
+    const socketConnection = io(import.meta.env.VITE_BACKEND_URL,{
+      auth:{
+        token:localStorage.getItem("token")
+      }
+    })
+    console.log("socketConnection",socketConnection)
+    socketConnection.on("onlineUser",(data)=>{
+      console.log(data);
+      dispatch(setOnlineUser(data))
+    })
+    dispatch(setSocketConnection(socketConnection))
+    return ()=>{
+      socketConnection.disconnect(socketConnection)
+    }
+  },[])
   console.log("location",location)
   const basePath = location.pathname === "/"
   return (

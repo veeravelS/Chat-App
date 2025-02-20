@@ -51,8 +51,9 @@ const Sidebar = () => {
             <Avatar
               width={25}
               height={25}
-              name={user.name !== "" ? user.name : ""}
-              imageUrl={user.profile_pic}
+              name={user?.name !== "" ? user?.name : ""}
+              imageUrl={user?.profile_pic}
+              userId={user?._id}
             />
           </button>
           <button

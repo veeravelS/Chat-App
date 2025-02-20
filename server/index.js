@@ -4,8 +4,7 @@ require('dotenv').config();
 const connectDB = require('./config/connectDB');
 const router = require("./router/index");
 const cookieParser = require('cookie-parser');
-
-const app = express();
+const {app,server} = require("./socket/index");
 
 // ✅ Fix: Ensure CORS correctly allows credentials
 app.use(cors({
@@ -33,7 +32,7 @@ app.use('/api', router);
 // ✅ Fix: Handle DB connection errors properly
 connectDB()
   .then(() => {
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`Server running at port ${PORT}`);
     });
   })
