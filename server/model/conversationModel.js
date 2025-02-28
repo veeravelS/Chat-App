@@ -5,6 +5,10 @@ const messageSchema = new mongoose.Schema({
       type:String,
       default:""
    },
+   text:{
+      type:String,
+      default:""
+   },
    imageUrl :{
       type:String,
       default:""
@@ -17,10 +21,14 @@ const messageSchema = new mongoose.Schema({
       type:Boolean,
       default:false
    },
+   messageByUserId:{
+      type:mongoose.Schema.ObjectId,
+      required:true,
+      ref:'User'
+   }
 },{
    timestamps:true
 })
-
 
 const conversationSchema = new mongoose.Schema({
    sender :{
@@ -33,18 +41,18 @@ const conversationSchema = new mongoose.Schema({
       required:true,
       ref:'User'
    },
-   message :{
+   messages :[{
       type:mongoose.Schema.ObjectId,
-      ref:'message'
-   }
+      ref:'Message'
+   }]
 },{
    timestamps:true
 })
 
-const messageModel = mongoose.model("Message",messageSchema)
-const conversationModel = mongoose.model("Conversation",conversationSchema)
+const MessageModel = mongoose.model("Message",messageSchema)
+const ConversationModel = mongoose.model("Conversation",conversationSchema)
 
-modules.exports = {
-   messageModel,
-   conversationModel
+module.exports = {
+   MessageModel,
+   ConversationModel
 }
