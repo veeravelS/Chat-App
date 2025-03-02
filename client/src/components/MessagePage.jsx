@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import { BsThreeDotsVertical } from "react-icons/bs";
@@ -12,6 +12,7 @@ import uploadFile from "../helpers/uploadFile";
 import Loader from "./Loader";
 import backgroundImage from "../assets/wallapaper.jpeg";
 import { MdOutlineSend } from "react-icons/md";
+import moment from "moment";
 
 const MessagePage = () => {
   const params = useParams();
@@ -24,11 +25,13 @@ const MessagePage = () => {
   });
   const [loading, setLoading] = useState(false);
   const [allMessage, setAllMessage] = useState([]);
+  const currentMessageRef = useRef(null);
   const user = useSelector((state) => state?.user?.userDetails);
   const socketConnection = useSelector(
     (state) => state?.user?.socketConnection
   );
   console.log("params", params);
+  console.log("user", user);
   console.log("socketConnection", socketConnection);
   const handleOpenImageVideoUpload = () => {
     setOpenUploadImageVideo(!openUploadImageVideo);
@@ -52,6 +55,7 @@ const MessagePage = () => {
     setLoading(true);
     const uploadVideo = await uploadFile(files);
     setLoading(false);
+    console.log(uploadVideo);
     setOpenUploadImageVideo(false);
     setMessage((prev) => ({
       ...prev,
@@ -65,6 +69,7 @@ const MessagePage = () => {
       imageUrl: "",
     }));
   };
+
   const handleClearUploadVideo = () => {
     setMessage((prev) => ({
       ...prev,
@@ -98,7 +103,16 @@ const MessagePage = () => {
   };
 
   useEffect(() => {
-    if(!socketConnection || !params.userId) return;
+    if (currentMessageRef.current) {
+      currentMessageRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+      });
+    }
+  }, [allMessage]);
+
+  useEffect(() => {
+    if (!socketConnection || !params.userId) return;
     if (socketConnection) {
       console.log("Emitting message-page event for user:", params.userId);
       socketConnection.emit("message-page", params.userId);
@@ -109,7 +123,7 @@ const MessagePage = () => {
       };
 
       const handleMessage = (data) => {
-        setAllMessage(data);
+        setAllMessage(data.reverse());
         console.log("message data", data);
       };
 
@@ -123,6 +137,7 @@ const MessagePage = () => {
     }
   }, [socketConnection, params.userId, user]);
   console.log("all", allMessage);
+  console.log("message", message);
   return (
     <div
       style={{ backgroundImage: `url(${backgroundImage})` }}
@@ -163,8 +178,40 @@ const MessagePage = () => {
       </header>
       {/* show all message */}
       <section className="h-[calc(100vh-128px)] bg-slate-200 bg-opacity-50 relative overflow-x-hidden overflow-y-scroll scrollbar">
+        <div ref={currentMessageRef} className="flex flex-col gap-2 py-2">
+          {allMessage.map((msg, index) => (
+            <div
+              key={index}
+              className={`p-1 bg-white py-1 rounded w-fit max-w-[280px] md:max-w-sm lg:max-w-md ${
+                user._id == msg.messageByUserId ? "ml-auto bg-teal-300" : ""
+              }`}
+            >
+              {msg.imageUrl && (
+                <div className="w-full max-w-md">
+                  <img
+                    src={msg.imageUrl}
+                    className="w-full h-full object-scale-down"
+                  />
+                </div>
+              )}
+               {msg.videoUrl && (
+                <div className="w-full max-w-md">
+                  <video
+                    src={msg.videoUrl}
+                    className="w-full h-full object-scale-down"
+                    controls
+                  />
+                </div>
+              )}
+              <p className="px-2 rounded w-fit">{msg.text}</p>
+              <p className="px-2 rounded w-fit">
+                {moment(msg.createdAt).format("hh:mm A")}
+              </p>
+            </div>
+          ))}
+        </div>
         {message.imageUrl && (
-          <div className="w-full h-full bg-slate-700 bg-opacity-30 flex justify-center items-center">
+          <div className="w-full h-full sticky bottom-0 bg-slate-700 bg-opacity-30 flex justify-center items-center">
             <div
               onClick={handleClearUploadImage}
               className="w-fit p-2 absolute top-0 right-0 cursor-pointer hover:text-red-600"
@@ -183,7 +230,7 @@ const MessagePage = () => {
           </div>
         )}
         {message.videoUrl && (
-          <div className="w-full h-full bg-slate-700 bg-opacity-30 flex justify-center items-center">
+          <div className="w-full h-full sticky bottom-0 bg-slate-700 bg-opacity-30 flex justify-center items-center">
             <div
               onClick={handleClearUploadVideo}
               className="w-fit p-2 absolute top-0 right-0 cursor-pointer hover:text-red-600"
@@ -204,21 +251,10 @@ const MessagePage = () => {
           </div>
         )}
         {loading && (
-          <div className="flex justify-center items-center h-full w-full">
+          <div className="flex sticky bottom-0 justify-center items-center h-full w-full">
             <Loader />
           </div>
         )}
-        <div>
-          {allMessage.map((msg, index) => {
-            return (
-              <div key={index} className="bg-white p-1 py-1 rounded w-fit">
-                <p className="px-2">{msg.text}</p>
-              </div>
-            );
-          })}
-        </div>
-        Show all message
-        {/* upload Image Display */}
       </section>
 
       {/* send message */}
@@ -244,7 +280,7 @@ const MessagePage = () => {
                   <p>Image</p>
                 </label>
                 <label
-                  htmlFor="uploadImage"
+                  htmlFor="uploadVideo"
                   className="flex items-center p-2 gap-3 hover:bg-slate-200"
                 >
                   <div className="text-purple-500 cursor-pointer">
@@ -261,7 +297,7 @@ const MessagePage = () => {
                 <input
                   className="hidden"
                   type="file"
-                  id="uploadImage"
+                  id="uploadVideo"
                   onChange={handleUploadVideo}
                 />
               </form>

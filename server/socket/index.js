@@ -25,7 +25,7 @@ io.on("connection", async (socket) => {
   const user = await getUserDetailsFromToken(token);
 
   //create a room
-  socket.join(user?._id);
+  socket.join(user?._id?.toString());
   onlineUser.add(user?._id?.toString());
   io.emit("onlineUser", Array.from(onlineUser));
 
@@ -40,6 +40,16 @@ io.on("connection", async (socket) => {
       online : onlineUser.has(userId)
     }
     socket.emit("message-user",payload)
+
+    //get previous message
+    const getConversationMessage = await ConversationModel.findOne({
+      "$or":[{  
+        sender:user?._id,receiver:userId
+      },{
+        sender:userId,receiver:user?._id
+      }]
+    }).populate({path:'messages',options:{sort:{updatedAt : -1}}})
+    socket.emit('message',getConversationMessage.messages)
   });
 
   //new message 
@@ -58,6 +68,7 @@ io.on("connection", async (socket) => {
     console.log("conversation",conversation);
     console.log("ConversationModel",ConversationModel);
 
+    //if conversation is not available
     if(!conversation){
       const createConversation = new ConversationModel({
         sender : data?.sender,
@@ -68,6 +79,7 @@ io.on("connection", async (socket) => {
     console.log("data",data);
     const message = new MessageModel({
       text:data.text,
+      sender:data.sender,
       imageUrl:data.imageUrl,
       videoUrl:data.videoUrl,
       messageByUserId:data.msgByUserId
@@ -82,19 +94,44 @@ io.on("connection", async (socket) => {
       path: "messages",
       options: { sort: { createdAt: -1 } } // ✅ Ensure messages are populated
     }); 
-    console.log(updateConversation)
+    console.log("updateConversation",updateConversation)
     const getConversationMessage = await ConversationModel.findOne({
-      "$or":[{
+      "$or":[{  
         sender:data?.sender,receiver:data?.receiver
       },{
         sender:data?.receiver,receiver:data?.sender
       }]
-    }).populate({path:'messages',options:{sort:{createdAt : -1}}})
+    }).populate({path:'messages',options:{sort:{updatedAt : -1}}})
     console.log("Fetched Messages:", getConversationMessage?.messages); 
+    console.log("sender",data)
     io.to(data?.sender).emit('message',getConversationMessage.messages)
     io.to(data?.receiver).emit('message',getConversationMessage.messages)
   })
 
+  // sidebar
+  socket.on('sidebar',async(currentUserId)=>{
+    console.log('current user',currentUserId)
+
+    const currentUserConversation = await ConversationModel.find({
+      "$or":[
+        {sender : currentUserId},
+        {receiver : currentUserId}
+      ]
+    }).sort({updatedAt : -1}).populate('messages').populate('sender').populate('receiver')
+  console.log('currentUserConversation',currentUserConversation)
+  const conversation = currentUserConversation.map((conv)=>{
+    const countUnseenMsg = conv.messages.reduce((prev,curr)=>prev + (curr.seen ? 0 : 1),0)
+    return {
+      _id : conv?._id,
+      sender : conv?.sender,
+      receiver : conv?.receiver,
+      unseenMsg : countUnseenMsg,
+      lastMsg : conv.messages[conv?.messages?.length - 1]
+    }
+  }
+  )
+  socket.emit("conversation",conversation)
+})
   //disconnect
   socket.on("disconnect", () => {
     onlineUser.delete(user?._id);

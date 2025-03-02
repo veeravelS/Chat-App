@@ -1,7 +1,7 @@
 import { IoChatbubbleEllipsesSharp } from "react-icons/io5";
 import { FaUserPlus } from "react-icons/fa";
 import { BiLogOut } from "react-icons/bi";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import Avatar from "./Avatar";
 import { useSelector } from "react-redux";
@@ -10,12 +10,45 @@ import EditUserDetail from "./EditUserDetail";
 import SearchUser from "./SearchUser";
 
 const Sidebar = () => {
+  const socketConnection = useSelector(
+    (state) => state?.user?.socketConnection
+  );
   const user = useSelector((state) => state?.user?.userDetails);
   console.log(user);
   const [isActive, setIsActive] = useState(false);
   const [editUserOpen, setEditUserOpen] = useState(false);
   const [allUser, setAllUser] = useState([]);
-  const [openSearchUser,setOpenSearchUser] = useState(false);
+  const [openSearchUser, setOpenSearchUser] = useState(false);
+
+  useEffect(() => {
+    if (socketConnection) {
+      socketConnection.emit("sidebar", user._id);
+      socketConnection.on("conversation", (data) => {
+        console.log("conversation", data);
+
+        const conversationUserData = data.map((conversationUser, index) => {
+          if (conversationUser?.sender?._id === conversationUser.receiver?.id) {
+            return {
+              ...conversationUser,
+              userDetails: conversationUser?.sender,
+            };
+          } else if (conversationUser?.receiver?._id !== user?._id) {
+            return {
+              ...conversationUser,
+              userDetails: conversationUser?.receiver,
+            };
+          }
+          else{
+            return {
+              ...conversationUser,
+              userDetails : conversationUser?.sender
+            }
+          }
+        });
+        setAllUser(conversationUserData);
+      });
+    }
+  }, [socketConnection, user]);
 
   const handleEditUserOpen = () => {
     setEditUserOpen(true);
@@ -37,7 +70,7 @@ const Sidebar = () => {
               isActive ? "bg-slate-200" : ""
             }`}
             title="new user"
-            onClick={()=>setOpenSearchUser(true)}
+            onClick={() => setOpenSearchUser(true)}
           >
             <FaUserPlus size={20} />
           </div>
@@ -74,26 +107,24 @@ const Sidebar = () => {
         </div>
         <div className="bg-slate-200 p-[0.5px]"></div>
         <div className="h-[calc(100vh-65px)] overflow-x-hidden overflow-y-auto scrollbar">
-          {
-            allUser.length === 0 && (
-              <div className="mt-10">
-                <div className="flex justify-center items-center my-4 text-slate-400">
-                  <FiArrowUpLeft size={40}/>
-                </div>
-                <p className="text-lg text-center text-slate-400">Explore user to start a conversation with .</p>
+          {allUser.length === 0 && (
+            <div className="mt-10">
+              <div className="flex justify-center items-center my-4 text-slate-400">
+                <FiArrowUpLeft size={40} />
               </div>
-            )
-          }
+              <p className="text-lg text-center text-slate-400">
+                Explore user to start a conversation with .
+              </p>
+            </div>
+          )}
         </div>
       </div>
       {editUserOpen && (
         <EditUserDetail onClose={() => setEditUserOpen(false)} user={user} />
       )}
-      {
-        openSearchUser && (
-          <SearchUser onClose={()=>setOpenSearchUser(false)}/>
-        )
-      }
+      {openSearchUser && (
+        <SearchUser onClose={() => setOpenSearchUser(false)} />
+      )}
     </div>
   );
 };
