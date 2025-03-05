@@ -1,5 +1,5 @@
 import { IoChatbubbleEllipsesSharp } from "react-icons/io5";
-import { FaUserPlus } from "react-icons/fa";
+import { FaImage, FaUserPlus, FaVideo } from "react-icons/fa";
 import { BiLogOut } from "react-icons/bi";
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
@@ -53,6 +53,7 @@ const Sidebar = () => {
   const handleEditUserOpen = () => {
     setEditUserOpen(true);
   };
+  console.log("allUser",allUser)
   return (
     <div className="w-full h-full grid grid-cols-[48px,1fr]">
       <div className="bg-slate-100 w-12 h-full rounded-tr-lg rounded-br-lg py-5 flex flex-col justify-between">
@@ -117,6 +118,45 @@ const Sidebar = () => {
               </p>
             </div>
           )}
+          {
+            allUser.map((conv,index)=>{
+              return(
+                <NavLink to={"/"+conv?.userDetails._id} key={conv._id} className='flex items-center gap-2 py-2 px-2 border-b mx-2 my-2'>
+                  <div>
+                    <Avatar
+                    imageUrl={conv?.userDetails?.profile_pic}
+                    name={conv?.userDetails?.name}
+                    width={40}
+                    height={40}
+                     />
+                  </div>
+                  <div className="flex flex-col justify-start items-start"> 
+                    <h3 className="text-ellipsis line-clamp-1 font-semibold text-base">{conv?.userDetails?.name}</h3>
+                    <div className="flex items-center justify-start gap-1">
+                      {
+                        conv?.lastMsg?.imageUrl && (
+                          <div className="flex justify-start items-center gap-1">
+                            <span className="mt-[2px] text-slate-500"><FaImage size={12}/></span>
+                            {!conv?.lastMsg?.text && <span className="text-xs text-slate-500">Image</span>}
+                          </div>
+                        )
+                      }
+                       {
+                        conv?.lastMsg?.videoUrl && (
+                          <div className="flex justify-start items-center gap-1">
+                            <span className="mt-[2px] text-slate-500"><FaVideo size={12}/></span>
+                            {!conv?.lastMsg?.text && <span className="text-xs text-slate-500">Video</span>}
+                          </div>
+                        )
+                      }
+                    <p className="text-xs text-ellipsis line-clamp-1 text-slate-500">{conv?.lastMsg?.text}</p>
+                    </div>
+                  </div>
+                  <p className="text-xs w-6 h-6 flex justify-center items-center bg-primary text-white rounded-full ml-auto">{conv?.unseenMsg}</p>
+                </NavLink>
+              )
+            })
+          }
         </div>
       </div>
       {editUserOpen && (

@@ -117,6 +117,7 @@ const MessagePage = () => {
       console.log("Emitting message-page event for user:", params.userId);
       socketConnection.emit("message-page", params.userId);
 
+      socketConnection.emit('seen',params.userId)
       const handleMessageUser = (data) => {
         setDataUser(data);
         console.log("data user", data);
@@ -179,7 +180,7 @@ const MessagePage = () => {
       {/* show all message */}
       <section className="h-[calc(100vh-128px)] bg-slate-200 bg-opacity-50 relative overflow-x-hidden overflow-y-scroll scrollbar">
         <div ref={currentMessageRef} className="flex flex-col gap-2 py-2">
-          {allMessage.map((msg, index) => (
+          {allMessage?.map((msg, index) => (
             <div
               key={index}
               className={`p-1 bg-white py-1 rounded w-fit max-w-[280px] md:max-w-sm lg:max-w-md ${
