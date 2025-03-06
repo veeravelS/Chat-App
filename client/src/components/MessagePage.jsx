@@ -110,7 +110,7 @@ const MessagePage = () => {
       });
     }
   }, [allMessage]);
-
+  
   useEffect(() => {
     if (!socketConnection || !params.userId) return;
     if (socketConnection) {
@@ -124,7 +124,8 @@ const MessagePage = () => {
       };
 
       const handleMessage = (data) => {
-        setAllMessage(data.reverse());
+        const reverseData = data ? data.reverse() :[];
+        setAllMessage(reverseData);
         console.log("message data", data);
       };
 

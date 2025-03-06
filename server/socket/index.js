@@ -4,6 +4,7 @@ const http = require("http");
 const app = express();
 const getUserDetailsFromToken = require("../helper/getUserDetailsFromToken");
 const UserModel = require("../model/userModel");
+const mongoose = require("mongoose");
 const getConversation = require("../helper/getConversation");
 const {
   ConversationModel,
@@ -140,24 +141,48 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("seen", async (msgByUserId) => {
-    const conversation = await ConversationModel.findOne({
-      $or: [
-        { sender: user?._id.toString(), receiver: msgByUserId },
-        { sender: msgByUserId, receiver: user?._id.toString() },
-      ],
-    });
-    const conversationMessageId = conversation?.messages || [];
-    const updateMessages = await MessageModel.updateMany(
-      { _id: { $in: conversationMessageId }, messageByUserId: msgByUserId },
-      { $set: { seen: true } }
-    );
-    //send conversation
-    const conversationSender = await getConversation(user?._id.toString());
-    const conversationReceiver = await getConversation(msgByUserId);
-    io.to(user?._id.toString()).emit("conversation", conversationSender);
-    io.to(msgByUserId).emit("conversation", conversationReceiver);
+    try {
+      const conversation = await ConversationModel.findOne({
+        $or: [
+          { sender: user?._id.toString(), receiver: msgByUserId },
+          { sender: msgByUserId, receiver: user?._id.toString() },
+        ],
+      });
+  
+      if (!conversation) return;
+  
+      const conversationMessageId = conversation?.messages || [];
+      console.log("conversationMessageId", conversationMessageId);
+  
+      await MessageModel.updateMany(
+        { 
+          _id: { "$in": conversationMessageId }, 
+          messageByUserId: { "$ne": new mongoose.Types.ObjectId(user?._id) } // ✅ Ensure only other user's messages are updated
+        },
+        { "$set": { seen: true } }
+      );
+  
+      // Fetch updated messages in the correct order
+      const updatedConversation = await ConversationModel.findOne({
+        $or: [
+          { sender: user?._id, receiver: msgByUserId },
+          { sender: msgByUserId, receiver: user?._id }
+        ],
+      }).populate({ path: "messages", options: { sort: { createdAt: 1 } } }); // ✅ Oldest to newest order
+  
+      // Send updated conversation
+      io.to(user?._id.toString()).emit("conversation", await getConversation(user?._id.toString()));
+      io.to(msgByUserId).emit("conversation", await getConversation(msgByUserId));
+      
+      // Send ordered messages
+      io.to(user?._id.toString()).emit("message", updatedConversation?.messages || []);
+      io.to(msgByUserId).emit("message", updatedConversation?.messages || []);
+  
+    } catch (error) {
+      console.error("Error in seen event:", error);
+    }
   });
-  //disconnect
+  // disconnect
   socket.on("disconnect", () => {
     onlineUser.delete(user?._id);
     console.log("disconnect user", socket.id);
