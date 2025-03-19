@@ -57,7 +57,7 @@ io.on("connection", async (socket) => {
           receiver: user?._id,
         },
       ],
-    }).populate({ path: "messages", options: { sort: { updatedAt: -1 } } });
+    }).populate({ path: "messages", options: { sort: { createdAt: -1 } } });
     socket.emit("message", getConversationMessage?.messages);
   });
 
@@ -81,7 +81,7 @@ io.on("connection", async (socket) => {
     });
     console.log("conversation", conversation);
     console.log("ConversationModel", ConversationModel);
-
+ 
     //if conversation is not available
     if (!conversation) {
       const createConversation = new ConversationModel({
@@ -120,7 +120,7 @@ io.on("connection", async (socket) => {
           receiver: data?.sender,
         },
       ],
-    }).populate({ path: "messages", options: { sort: { updatedAt: -1 } } });
+    }).populate({ path: "messages", options: { sort: { createdAt: -1 } } });
     console.log("Fetched Messages:", getConversationMessage?.messages);
     console.log("sender", data);
     io.to(data?.sender).emit("message", getConversationMessage.messages);
@@ -168,7 +168,7 @@ io.on("connection", async (socket) => {
           { sender: user?._id, receiver: msgByUserId },
           { sender: msgByUserId, receiver: user?._id }
         ],
-      }).populate({ path: "messages", options: { sort: { createdAt: 1 } } }); // ✅ Oldest to newest order
+      }).populate({ path: "messages", options: { sort: { createdAt: -1 } } }); // ✅ Oldest to newest order
   
       // Send updated conversation
       io.to(user?._id.toString()).emit("conversation", await getConversation(user?._id.toString()));
@@ -184,7 +184,7 @@ io.on("connection", async (socket) => {
   });
   // disconnect
   socket.on("disconnect", () => {
-    onlineUser.delete(user?._id);
+    onlineUser.delete(user?._id?.toString());
     console.log("disconnect user", socket.id);
   });
 });

@@ -184,8 +184,8 @@ const MessagePage = () => {
           {allMessage?.map((msg, index) => (
             <div
               key={index}
-              className={`p-1 bg-white py-1 rounded w-fit max-w-[280px] md:max-w-sm lg:max-w-md ${
-                user._id == msg.messageByUserId ? "ml-auto bg-teal-300" : ""
+              className={`p-1 py-1 rounded w-fit max-w-[280px] md:max-w-sm lg:max-w-md ${
+                user._id == msg.messageByUserId ? "ml-auto bg-teal-100" : "bg-white"
               }`}
             >
               {msg.imageUrl && (
