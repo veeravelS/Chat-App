@@ -5,11 +5,10 @@ const userSlice = createSlice({
   initialState: {
     userDetails:
       localStorage.getItem("userDetails") === "string"
-        ? localStorage.getItem("userDetails")
-        : localStorage.getItem("userDetails")
-        ? JSON.parse(localStorage.getItem("userDetails"))
+       ? JSON.parse(localStorage.getItem("userDetails"))
         : [],
     onlineUser: [],
+    token : localStorage.getItem("token") || null,
     socketConnection: null,
   },
   reducers: {
@@ -19,6 +18,7 @@ const userSlice = createSlice({
     },
     setToken: (state, action) => {
       state.token = action.payload;
+      localStorage.setItem("token", action.payload);
     },
     setOnlineUser: (state, action) => {
       state.onlineUser = action.payload;

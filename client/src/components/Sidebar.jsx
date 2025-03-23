@@ -17,50 +17,62 @@ const Sidebar = () => {
   const user = useSelector((state) => state?.user?.userDetails);
   console.log(user);
   const dispatch = useDispatch();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [isActive, setIsActive] = useState(false);
   const [editUserOpen, setEditUserOpen] = useState(false);
   const [allUser, setAllUser] = useState([]);
   const [openSearchUser, setOpenSearchUser] = useState(false);
 
   useEffect(() => {
-    if (socketConnection) {
-      socketConnection.emit("sidebar", user._id);
-      socketConnection.on("conversation", (data) => {
-        console.log("conversation", data);
+    if (!socketConnection) return; // Ensure socket is available
+    const fetchConversation = () => {
+      if (socketConnection && user._id) {
+        socketConnection.emit("sidebar", user._id);
+      }
+    };
 
-        const conversationUserData = data.map((conversationUser, index) => {
-          if (conversationUser?.sender?._id === conversationUser.receiver?.id) {
-            return {
-              ...conversationUser,
-              userDetails: conversationUser?.sender,
-            };
-          } else if (conversationUser?.receiver?._id !== user?._id) {
-            return {
-              ...conversationUser,
-              userDetails: conversationUser?.receiver,
-            };
-          } else {
-            return {
-              ...conversationUser,
-              userDetails: conversationUser?.sender,
-            };
-          }
-        });
-        setAllUser(conversationUserData);
+    const handleConversation = (data) => {
+      console.log("conversation", data);
+      const conversationUserData = data.map((conversationUser) => {
+        if (conversationUser?.sender?._id === conversationUser?.receiver?.id) {
+          return { ...conversationUser, userDetails: conversationUser?.sender };
+        } else if (conversationUser?.receiver?._id !== user?._id) {
+          return {
+            ...conversationUser,
+            userDetails: conversationUser?.receiver,
+          };
+        } else {
+          return { ...conversationUser, userDetails: conversationUser?.sender };
+        }
       });
+      setAllUser(conversationUserData);
+    };
+    if (socketConnection) {
+      fetchConversation();
+      socketConnection.on("conversation", handleConversation);
     }
+    const handleVisibilityChange = ()=>{
+      if(document.visibilityState == "visible"){
+        fetchConversation();
+      }
+    }
+    document.addEventListener("visibilitychange", handleVisibilityChange)
+    return () => {
+      socketConnection.off("conversation", handleConversation);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, [socketConnection, user]);
 
   const handleEditUserOpen = () => {
     setEditUserOpen(true);
   };
 
-  const handleLogout = ()=>{
+  const handleLogout = () => {
     dispatch(logout());
     navigate("/email");
     localStorage.clear();
-  }
+  };
+  console.log("socketConnection", socketConnection);
   console.log("allUser", allUser);
   return (
     <div className="w-full h-full grid grid-cols-[48px,1fr]">

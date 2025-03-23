@@ -6,10 +6,13 @@ const logout = require('../controller/logout')
 const updateUserDetails = require('../controller/updateUserDetails')
 const userDetails = require("../controller/userDetails")
 const searchUser = require("../controller/searchUser")
+const loginUser = require("../controller/loginUser") 
 const router = express.Router()
 
 //create user api
 router.post("/register",registerUser)
+// user login
+router.post("/login",loginUser)
 //check user email
 router.post("/email",checkEmail)
 //check user password

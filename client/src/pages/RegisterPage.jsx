@@ -47,7 +47,7 @@ const RegisterPage = () => {
           password: "",
           profile_pic: "",
         })
-        navigate("/email")
+        navigate("/login")
       }
     } catch (error) {
       toast.error(error?.response?.data?.message);
@@ -137,7 +137,7 @@ const RegisterPage = () => {
         <p className="py-3 text-center">
           Already have an account ?{" "}
           <Link
-            to={"/email"}
+            to={"/login"}
             className="hover:text-primary font-semibold hover:underline"
           >
             Login

@@ -27,6 +27,7 @@ const MessagePage = () => {
   const [allMessage, setAllMessage] = useState([]);
   const currentMessageRef = useRef(null);
   const user = useSelector((state) => state?.user?.userDetails);
+  const lastSeenEmitTime = useRef(0); 
   const socketConnection = useSelector(
     (state) => state?.user?.socketConnection
   );
@@ -116,8 +117,8 @@ const MessagePage = () => {
     if (socketConnection) {
       console.log("Emitting message-page event for user:", params.userId);
       socketConnection.emit("message-page", params.userId);
+      socketConnection.emit('seen',params.userId);
 
-      socketConnection.emit('seen',params.userId)
       const handleMessageUser = (data) => {
         setDataUser(data);
         console.log("data user", data);
@@ -127,17 +128,39 @@ const MessagePage = () => {
         const reverseData = data ? data.reverse() :[];
         setAllMessage(reverseData);
         console.log("message data", data);
+        const now = Date.now();
+        if(now -lastSeenEmitTime.current > 2000){
+          socketConnection.emit("seen",params.userId);
+          lastSeenEmitTime.current = now;
+        }
       };
 
       socketConnection.on("message-user", handleMessageUser);
       socketConnection.on("message", handleMessage);
-
+      // document.removeEventListener("visibilitychange", handleVisibilityChange);
       return () => {
         socketConnection.off("message-user", handleMessageUser);
         socketConnection.off("message", handleMessage);
+        // document.removeEventListener("visibilitychange", handleVisibilityChange);
       };
     }
-  }, [socketConnection, params.userId, user]);
+  }, [socketConnection, params.userId]);
+  useEffect(() => {
+    if (!socketConnection) return;
+  
+    const handleOnlineUserUpdate = (onlineUsers) => {
+      setDataUser((prevDataUser) => ({
+        ...prevDataUser,
+        online: onlineUsers.includes(prevDataUser._id),
+      }));
+    };
+  
+    socketConnection.on("onlineUser", handleOnlineUserUpdate);
+  
+    return () => {
+      socketConnection.off("onlineUser", handleOnlineUserUpdate);
+    };
+  }, [socketConnection]);
   console.log("all", allMessage);
   console.log("message", message);
   return (
