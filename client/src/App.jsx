@@ -9,6 +9,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import Login from "./pages/Login";
 import Auth from "./pages/auth/Auth";
 
+
 function App() {
   return (
     <BrowserRouter>

@@ -15,6 +15,7 @@ const Avatar = ({userId,name,imageUrl,width,height}) => {
          avatarName = splitName[0][0]
       }
    }
+   
    const bgColor = [
       'bg-slate-200',
       'bg-teal-200',

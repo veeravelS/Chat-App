@@ -4,17 +4,16 @@ import { BiLogOut } from "react-icons/bi";
 import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import Avatar from "./Avatar";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch} from "react-redux";
 import { FiArrowUpLeft } from "react-icons/fi";
 import EditUserDetail from "./EditUserDetail";
 import SearchUser from "./SearchUser";
 import { logout } from "../store/userSlice";
+import { useSocket } from "../socket/socketContext";
 
 const Sidebar = () => {
-  const socketConnection = useSelector(
-    (state) => state?.user?.socketConnection
-  );
-  const user = useSelector((state) => state?.user?.userDetails);
+  const socket = useSocket();
+  const user = JSON.parse(localStorage.getItem("userDetails"));
   console.log(user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -24,15 +23,13 @@ const Sidebar = () => {
   const [openSearchUser, setOpenSearchUser] = useState(false);
 
   useEffect(() => {
-    if (!socketConnection) return; // Ensure socket is available
+    if (!socket || !socket.connected || !user?._id) return;
+  
     const fetchConversation = () => {
-      if (socketConnection && user._id) {
-        socketConnection.emit("sidebar", user._id);
-      }
+      socket.emit("sidebar", user._id);
     };
-
+  
     const handleConversation = (data) => {
-      console.log("conversation", data);
       const conversationUserData = data.map((conversationUser) => {
         if (conversationUser?.sender?._id === conversationUser?.receiver?.id) {
           return { ...conversationUser, userDetails: conversationUser?.sender };
@@ -45,23 +42,27 @@ const Sidebar = () => {
           return { ...conversationUser, userDetails: conversationUser?.sender };
         }
       });
+      console.log(conversationUserData)
       setAllUser(conversationUserData);
     };
-    if (socketConnection) {
-      fetchConversation();
-      socketConnection.on("conversation", handleConversation);
-    }
-    const handleVisibilityChange = ()=>{
-      if(document.visibilityState == "visible"){
+  
+    fetchConversation();
+    socket.on("conversation", handleConversation);
+  
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
         fetchConversation();
       }
-    }
-    document.addEventListener("visibilitychange", handleVisibilityChange)
+    };
+  
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+  
     return () => {
-      socketConnection.off("conversation", handleConversation);
+      socket.off("conversation", handleConversation);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [socketConnection, user]);
+  }, [socket, user?._id]);
+  
 
   const handleEditUserOpen = () => {
     setEditUserOpen(true);
@@ -72,7 +73,7 @@ const Sidebar = () => {
     navigate("/email");
     localStorage.clear();
   };
-  console.log("socketConnection", socketConnection);
+  console.log("socketConnection", socket);
   console.log("allUser", allUser);
   return (
     <div className="w-full h-full grid grid-cols-[48px,1fr]">

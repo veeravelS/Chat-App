@@ -3,11 +3,13 @@ import { Toaster } from "react-hot-toast";
 import { useEffect } from "react";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { logout, setOnlineUser, setSocketConnection } from "./store/userSlice";
+import { logout, setOnlineUser } from "./store/userSlice";
 import Sidebar from "./components/Sidebar";
 import logo from "./assets/logo.png"
-import io from "socket.io-client"
+// import io from "socket.io-client"
+import { useSocket } from "./socket/socketContext";
 const AppLayout = () => {
+  const socket = useSocket();
   const user = useSelector((state) => state.user.userDetails);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -26,29 +28,25 @@ const AppLayout = () => {
       console.log(error);
     }
   };
-
+  console.log(socket)
   useEffect(() => {
     fetchUserDetails();
   }, []);
-
+  
   // socket connection
-  useEffect(()=>{
-    const socketConnection = io(import.meta.env.VITE_BACKEND_URL,{
-      auth:{
-        token:localStorage.getItem("token")
-      }
-    })
-    console.log("socketConnection",socketConnection)
-    socketConnection.on("onlineUser",(data)=>{
-      console.log(data);
-      dispatch(setOnlineUser(data))
-    })
-    dispatch(setSocketConnection(socketConnection))
-    return ()=>{
-      socketConnection.disconnect(socketConnection)
-    }
-  },[])
-  console.log("location",location)
+  useEffect(() => {
+    if (!socket) return;
+  
+    socket.on("onlineUser", (data) => {
+      console.log("onlineUser:", data);
+      dispatch(setOnlineUser(data));
+    });
+  
+    return () => {
+      socket.off("onlineUser");
+    };
+  }, [socket]);
+
   const basePath = location.pathname === "/"
   return (
     <div className="grid lg:grid-cols-[300px,1fr] h-screen max-h-screen">
