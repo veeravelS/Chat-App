@@ -10,11 +10,9 @@ import logo from "./assets/logo.png"
 import { useSocket } from "./socket/socketContext";
 const AppLayout = () => {
   const socket = useSocket();
-  const user = useSelector((state) => state.user.userDetails);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  console.log(user);
   const fetchUserDetails = async () => {
     const URL = `${import.meta.env.VITE_BACKEND_URL}/api/user-details`;
     try {
@@ -28,7 +26,6 @@ const AppLayout = () => {
       console.log(error);
     }
   };
-  console.log(socket)
   useEffect(() => {
     fetchUserDetails();
   }, []);

@@ -22,7 +22,6 @@ const RegisterPage = () => {
   const handleUploadPhoto = async (e) => {
     const files = e.target.files[0];
     const uploadPhoto = await uploadFile(files);
-    console.log(uploadPhoto);
     setData((prev)=>({...prev,profile_pic:uploadPhoto.secure_url}))
     setUploadPhoto(files);
   };
@@ -39,7 +38,6 @@ const RegisterPage = () => {
     try {
       const response = await axios.post(URL,data);
       toast.success(response?.data?.message)
-      console.log(response);
       if(response.data.success){
         setData({
           name: "",
@@ -53,7 +51,6 @@ const RegisterPage = () => {
       toast.error(error?.response?.data?.message);
       console.log(error);
     }
-    console.log("data", data);
   };
   
   return (

@@ -13,18 +13,15 @@ const SearchUser = ({ onClose }) => {
   const handleSearchUser = async (e) => {
     setLoading(true);
     setSearch(e.target.value);
-    console.log(e);
     try {
       const URL = `${import.meta.env.VITE_BACKEND_URL}/api/search-user`;
       const response = await axios.post(URL, { search: e.target.value });
-      console.log(response);
       setSearchUser(response.data.data);
       setLoading(false);
     } catch (error) {
       toast.error(error?.response?.data?.message);
     }
   };
-  console.log(searchUser);
   return (
     <div className="fixed top-0 bottom-0 left-0 right-0 bg-slate-700 bg-opacity-40 p-2 z-10">
       <div className="w-full max-w-lg mx-auto mt-10 m-2">

@@ -8,7 +8,6 @@ const Avatar = ({userId,name,imageUrl,width,height}) => {
 
    if(name!==undefined && name[0]!==undefined){
       const splitName = name[0].split(" ");
-      console.log(splitName)
       if(splitName.length>1){
          avatarName = splitName[0][0]+splitName[1][0]
       }else{
@@ -29,7 +28,6 @@ const Avatar = ({userId,name,imageUrl,width,height}) => {
    ]
 
    const randomNumber = Math.floor(Math.random()*5);
-   console.log(randomNumber);
    const isOnline = onlineUser.includes(userId)
   return (
     <div className='text-slate-800  rounded-full font-bold relative' style={{width:width + "px",height:height + "px"}}>

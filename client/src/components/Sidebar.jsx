@@ -14,7 +14,6 @@ import { useSocket } from "../socket/socketContext";
 const Sidebar = () => {
   const socket = useSocket();
   const user = JSON.parse(localStorage.getItem("userDetails"));
-  console.log(user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isActive, setIsActive] = useState(false);
@@ -24,7 +23,7 @@ const Sidebar = () => {
 
   useEffect(() => {
     if (!socket || !socket.connected || !user?._id) return;
-  
+    console.log("test")
     const fetchConversation = () => {
       socket.emit("sidebar", user._id);
     };
@@ -42,9 +41,14 @@ const Sidebar = () => {
           return { ...conversationUser, userDetails: conversationUser?.sender };
         }
       });
-      console.log(conversationUserData)
       setAllUser(conversationUserData);
     };
+
+  if (socket.connected) {
+    fetchConversation();
+  }
+
+  socket.on("connect", fetchConversation);
   
     fetchConversation();
     socket.on("conversation", handleConversation);

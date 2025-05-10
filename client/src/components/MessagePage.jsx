@@ -13,6 +13,7 @@ import Loader from "./Loader";
 import backgroundImage from "../assets/wallapaper.jpeg";
 import { MdOutlineSend } from "react-icons/md";
 import moment from "moment";
+import { useSocket } from "../socket/socketContext";
 
 const MessagePage = () => {
   const params = useParams();
@@ -28,12 +29,7 @@ const MessagePage = () => {
   const currentMessageRef = useRef(null);
   const user = useSelector((state) => state?.user?.userDetails);
   const lastSeenEmitTime = useRef(0); 
-  const socketConnection = useSelector(
-    (state) => state?.user?.socketConnection
-  );
-  console.log("params", params);
-  console.log("user", user);
-  console.log("socketConnection", socketConnection);
+    const socket = useSocket();
   const handleOpenImageVideoUpload = () => {
     setOpenUploadImageVideo(!openUploadImageVideo);
   };
@@ -43,7 +39,6 @@ const MessagePage = () => {
     setLoading(true);
     const uploadPhoto = await uploadFile(files);
     setLoading(false);
-    console.log(uploadPhoto);
     setOpenUploadImageVideo(false);
     setMessage((prev) => ({
       ...prev,
@@ -56,7 +51,6 @@ const MessagePage = () => {
     setLoading(true);
     const uploadVideo = await uploadFile(files);
     setLoading(false);
-    console.log(uploadVideo);
     setOpenUploadImageVideo(false);
     setMessage((prev) => ({
       ...prev,
@@ -89,8 +83,8 @@ const MessagePage = () => {
   const handleSendMessage = (e) => {
     e.preventDefault();
     if (message.text || message.imageUrl || message.videoUrl) {
-      if (socketConnection) {
-        socketConnection.emit("new message", {
+      if (socket) {
+        socket.emit("new message", {
           sender: user?._id,
           receiver: params?.userId,
           text: message.text,
@@ -113,11 +107,11 @@ const MessagePage = () => {
   }, [allMessage]);
   
   useEffect(() => {
-    if (!socketConnection || !params.userId) return;
-    if (socketConnection) {
+    if (!socket || !params.userId) return;
+    if (socket) {
       console.log("Emitting message-page event for user:", params.userId);
-      socketConnection.emit("message-page", params.userId);
-      socketConnection.emit('seen',params.userId);
+      socket.emit("message-page", params.userId);
+      socket.emit('seen',params.userId);
 
       const handleMessageUser = (data) => {
         setDataUser(data);
@@ -130,23 +124,23 @@ const MessagePage = () => {
         console.log("message data", data);
         const now = Date.now();
         if(now -lastSeenEmitTime.current > 2000){
-          socketConnection.emit("seen",params.userId);
+          socket.emit("seen",params.userId);
           lastSeenEmitTime.current = now;
         }
       };
 
-      socketConnection.on("message-user", handleMessageUser);
-      socketConnection.on("message", handleMessage);
+      socket.on("message-user", handleMessageUser);
+      socket.on("message", handleMessage);
       // document.removeEventListener("visibilitychange", handleVisibilityChange);
       return () => {
-        socketConnection.off("message-user", handleMessageUser);
-        socketConnection.off("message", handleMessage);
+        socket.off("message-user", handleMessageUser);
+        socket.off("message", handleMessage);
         // document.removeEventListener("visibilitychange", handleVisibilityChange);
       };
     }
-  }, [socketConnection, params.userId]);
+  }, [socket, params.userId]);
   useEffect(() => {
-    if (!socketConnection) return;
+    if (!socket) return;
   
     const handleOnlineUserUpdate = (onlineUsers) => {
       setDataUser((prevDataUser) => ({
@@ -155,14 +149,12 @@ const MessagePage = () => {
       }));
     };
   
-    socketConnection.on("onlineUser", handleOnlineUserUpdate);
+    socket.on("onlineUser", handleOnlineUserUpdate);
   
     return () => {
-      socketConnection.off("onlineUser", handleOnlineUserUpdate);
+      socket.off("onlineUser", handleOnlineUserUpdate);
     };
-  }, [socketConnection]);
-  console.log("all", allMessage);
-  console.log("message", message);
+  }, [socket]);
   return (
     <div
       style={{ backgroundImage: `url(${backgroundImage})` }}

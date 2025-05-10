@@ -18,7 +18,6 @@ const EditUserDetail = ({ onClose, user }) => {
     setData((prev)=>({...prev,...user}
     ))
   },[])
-  console.log(user);
   const handleOnChange = (e) => {
     const { name, value } = e.target;
     setData((prev) => {
@@ -32,7 +31,6 @@ const EditUserDetail = ({ onClose, user }) => {
   const handleUploadPhoto = async (e) => {
     const files = e.target.files[0];
     const uploadPhoto = await uploadFile(files);
-    console.log(uploadPhoto);
     setData((prev) => ({ ...prev, profile_pic: uploadPhoto.secure_url }));
   };
 
@@ -46,7 +44,6 @@ const EditUserDetail = ({ onClose, user }) => {
     try {
       const URL = `${import.meta.env.VITE_BACKEND_URL}/api/update-user`
       const response = await axios.post(URL,data, { withCredentials: true });
-      console.log(response?.data)
       toast.success(response?.data?.message);
       onClose();
       if(response.data.success){
