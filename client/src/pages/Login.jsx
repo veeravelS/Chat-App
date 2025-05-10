@@ -33,7 +33,7 @@ const Login = () => {
         password: "",
       });
       dispatch(setUsers(response?.data.data));
-      localStorage.setItem("userDetails", JSON.stringify(response?.data.data));
+      // localStorage.setItem("userDetails", JSON.stringify(response?.data.data));
       dispatch(setToken(response?.data?.token));
       localStorage.setItem("token", response?.data?.token);
       navigate("/");

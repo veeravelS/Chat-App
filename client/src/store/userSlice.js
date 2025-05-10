@@ -6,7 +6,7 @@ const userSlice = createSlice({
     userDetails:
       localStorage.getItem("userDetails") === "string"
        ? JSON.parse(localStorage.getItem("userDetails"))
-        : [],
+        :JSON.parse(localStorage.getItem("userDetails")),
     onlineUser: [],
     token : localStorage.getItem("token") || null,
     socketConnection: null,

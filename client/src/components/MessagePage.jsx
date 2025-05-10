@@ -33,7 +33,7 @@ const MessagePage = () => {
   const handleOpenImageVideoUpload = () => {
     setOpenUploadImageVideo(!openUploadImageVideo);
   };
-
+  console.log(user)
   const handleUploadImage = async (e) => {
     const files = e.target.files[0];
     setLoading(true);
