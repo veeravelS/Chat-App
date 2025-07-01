@@ -1,212 +1,114 @@
-import { IoChatbubbleEllipsesSharp } from "react-icons/io5";
-import { FaImage, FaUserPlus, FaVideo } from "react-icons/fa";
-import { BiLogOut } from "react-icons/bi";
-import { useEffect, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import Avatar from "./Avatar";
-import { useDispatch} from "react-redux";
-import { FiArrowUpLeft } from "react-icons/fi";
-import EditUserDetail from "./EditUserDetail";
-import SearchUser from "./SearchUser";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@radix-ui/react-tooltip";
+import { cn } from "../lib/utils";
+import {FileText, User, LogOut } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import logo from "../assets/logo.png";
 import { logout } from "../store/userSlice";
-import { useSocket } from "../socket/socketContext";
+import { useDispatch } from "react-redux";
+import { useRef, useState } from "react";
+import { Button } from "./ui/button";
 
-const Sidebar = () => {
-  const socket = useSocket();
-  const user = JSON.parse(localStorage.getItem("userDetails"));
+export default function Sidebar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [isActive, setIsActive] = useState(false);
-  const [editUserOpen, setEditUserOpen] = useState(false);
-  const [allUser, setAllUser] = useState([]);
-  const [openSearchUser, setOpenSearchUser] = useState(false);
-
-  useEffect(() => {
-    if (!socket || !socket.connected || !user?._id) return;
-    console.log("test")
-    const fetchConversation = () => {
-      socket.emit("sidebar", user._id);
-    };
-  
-    const handleConversation = (data) => {
-      const conversationUserData = data.map((conversationUser) => {
-        if (conversationUser?.sender?._id === conversationUser?.receiver?.id) {
-          return { ...conversationUser, userDetails: conversationUser?.sender };
-        } else if (conversationUser?.receiver?._id !== user?._id) {
-          return {
-            ...conversationUser,
-            userDetails: conversationUser?.receiver,
-          };
-        } else {
-          return { ...conversationUser, userDetails: conversationUser?.sender };
-        }
-      });
-      setAllUser(conversationUserData);
-    };
-
-  if (socket.connected) {
-    fetchConversation();
-  }
-
-  socket.on("connect", fetchConversation);
-  
-    fetchConversation();
-    socket.on("conversation", handleConversation);
-  
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        fetchConversation();
-      }
-    };
-  
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-  
-    return () => {
-      socket.off("conversation", handleConversation);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-  }, [socket, user?._id]);
-  
-
-  const handleEditUserOpen = () => {
-    setEditUserOpen(true);
-  };
+  const location = useLocation();
+  const logRef = useRef(null);
+  const pathname = location.pathname;
+  const [logModalOpen, setLogModalOpen] = useState(false);
+  const links = [
+    // { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+    // { href: "/users", icon: Users, label: "Users" },
+    { href: "/message", icon: FileText, label: "Messages" },
+    { href: "/profile", icon: User, label: "User Profile" },
+  ];
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate("/email");
-    localStorage.clear();
+    navigate("/auth");
   };
-  console.log("socketConnection", socket);
-  console.log("allUser", allUser);
-  return (
-    <div className="w-full h-full grid grid-cols-[48px,1fr]">
-      <div className="bg-slate-100 w-12 h-full rounded-tr-lg rounded-br-lg py-5 flex flex-col justify-between">
-        <div>
-          <NavLink
-            className={`w-12 h-12 cursor-pointer hover:bg-slate-200 flex justify-center items-center ${
-              isActive ? "bg-slate-200" : ""
-            }`}
-            title="chat"
-          >
-            <IoChatbubbleEllipsesSharp size={20} />
-          </NavLink>
-          <div
-            className={`w-12 h-12 cursor-pointer hover:bg-slate-200 flex justify-center items-center ${
-              isActive ? "bg-slate-200" : ""
-            }`}
-            title="new user"
-            onClick={() => setOpenSearchUser(true)}
-          >
-            <FaUserPlus size={20} />
-          </div>
-        </div>
-        <div className="flex flex-col items-center">
-          <button
-            onClick={handleEditUserOpen}
-            className="mx-auto mr-3"
-            title={user.name}
-          >
-            <Avatar
-              width={25}
-              height={25}
-              name={user?.name !== "" ? user?.name : ""}
-              imageUrl={user?.profile_pic}
-              userId={user?._id}
-            />
-          </button>
-          <button
-            className={`w-12 h-12 cursor-pointer hover:bg-slate-200 flex justify-center items-center ${
-              isActive ? "bg-slate-200" : ""
-            }`}
-            title="logout"
-            onClick={handleLogout}
-          >
-            <span className="mr-2">
-              <BiLogOut size={20} />
-            </span>
-          </button>
-        </div>
-      </div>
-      <div className="w-full">
-        <div className="h-16 flex items-center">
-          <h2 className="text-xl font-bold p-4 text-slate-800">Message</h2>
-        </div>
-        <div className="bg-slate-200 p-[0.5px]"></div>
-        <div className="h-[calc(100vh-65px)] overflow-x-hidden overflow-y-auto scrollbar">
-          {allUser.length === 0 && (
-            <div className="mt-10">
-              <div className="flex justify-center items-center my-4 text-slate-400">
-                <FiArrowUpLeft size={40} />
-              </div>
-              <p className="text-lg text-center text-slate-400">
-                Explore user to start a conversation with .
-              </p>
-            </div>
-          )}
-          {allUser.map((conv, index) => {
-            return (
-              <NavLink
-                to={"/" + conv?.userDetails._id}
-                key={conv._id}
-                className="flex items-center gap-2 py-2 px-2 border-b mx-2 my-2"
-              >
-                <div>
-                  <Avatar
-                    imageUrl={conv?.userDetails?.profile_pic}
-                    name={conv?.userDetails?.name}
-                    width={40}
-                    height={40}
-                  />
-                </div>
-                <div className="flex flex-col justify-start items-start">
-                  <h3 className="text-ellipsis line-clamp-1 font-semibold text-base">
-                    {conv?.userDetails?.name}
-                  </h3>
-                  <div className="flex items-center justify-start gap-1">
-                    {conv?.lastMsg?.imageUrl && (
-                      <div className="flex justify-start items-center gap-1">
-                        <span className="mt-[2px] text-slate-500">
-                          <FaImage size={12} />
-                        </span>
-                        {!conv?.lastMsg?.text && (
-                          <span className="text-xs text-slate-500">Image</span>
-                        )}
-                      </div>
-                    )}
-                    {conv?.lastMsg?.videoUrl && (
-                      <div className="flex justify-start items-center gap-1">
-                        <span className="mt-[2px] text-slate-500">
-                          <FaVideo size={12} />
-                        </span>
-                        {!conv?.lastMsg?.text && (
-                          <span className="text-xs text-slate-500">Video</span>
-                        )}
-                      </div>
-                    )}
-                    <p className="text-xs text-ellipsis line-clamp-1 text-slate-500">
-                      {conv?.lastMsg?.text}
-                    </p>
-                  </div>
-                </div>
-                {Boolean(conv?.unseenMsg) && (
-                  <p className="text-xs w-6 h-6 flex justify-center items-center bg-primary text-white rounded-full ml-auto">
-                    {conv?.unseenMsg}
-                  </p>
-                )}
-              </NavLink>
-            );
-          })}
-        </div>
-      </div>
-      {editUserOpen && (
-        <EditUserDetail onClose={() => setEditUserOpen(false)} user={user} />
-      )}
-      {openSearchUser && (
-        <SearchUser onClose={() => setOpenSearchUser(false)} />
-      )}
-    </div>
-  );
-};
 
-export default Sidebar;
+  // Close the modal when clicking outside
+  const handleClickOutside = (event) => {
+    if (logRef.current && !logRef.current.contains(event.target)) {
+      setLogModalOpen(false);
+    }
+  };
+  // Add event listener for clicks outside the modal
+  document.addEventListener("mousedown", handleClickOutside);
+
+  return (
+    <>
+      <TooltipProvider delayDuration={100}>
+        <aside className="fixed inset-y-0 left-0 z-10 hidden w-[12rem] flex-col border-r bg-background sm:flex">
+          <div className="flex items-center justify-center h-16 border-b">
+            <img src={logo} alt="logo" width={120} />
+          </div>
+          <nav className="flex flex-col items-start gap-1 px-4 py-4 w-full">
+            {links.map((link) => (
+              <div key={link.href} className="w-full">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link
+                      to={link.href}
+                      className={cn(
+                        "flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                        pathname === link.href
+                          ? "bg-accent text-accent-foreground"
+                          : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                      )}
+                    >
+                      <link.icon className="h-5 w-5" />
+                      <span>{link.label}</span>
+                    </Link>
+                  </TooltipTrigger>
+                  {/* Tooltip won't show when label is visible (wide sidebar) */}
+                  {window.innerWidth < 768 && (
+                    <TooltipContent side="right" sideOffset={5}>
+                      {link.label}
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </div>
+            ))}
+          </nav>
+          <div className="flex-grow"></div>
+          <div className="flex items-center justify-start pl-4 h-16 border-t">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div
+                  onClick={() => setLogModalOpen(true)}
+                  className="flex w-full cursor-pointer items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                >
+                  <LogOut />
+                  <span>Logout</span>
+                </div>
+              </TooltipTrigger>
+              {/* Tooltip won't show when label is visible (wide sidebar) */}
+              {window.innerWidth < 768 && (
+                <TooltipContent side="right" sideOffset={5}>
+                  Logout
+                </TooltipContent>
+              )}
+            </Tooltip>
+            {
+              logModalOpen && (
+                 <div ref={logRef} className="w-35 mb-40 -ml-10 bg-white shadow-md p-4 gap-3">
+                  <p className="text-sm">Do you really want to logout?</p>
+                  <div className="flex flex-row mt-1">
+                  <Button className="mr-2 px-5" onClick={() => setLogModalOpen(false)}>No</Button>
+                   <Button  onClick={handleLogout} className="bg-primary px-5">Yes</Button>
+                  </div>
+                 </div>
+              )
+            }
+          </div>
+        </aside>
+      </TooltipProvider>
+    </>
+  );
+}

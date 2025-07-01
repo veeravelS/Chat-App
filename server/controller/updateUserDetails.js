@@ -6,11 +6,12 @@ async function updateUserDetails(request,response){
       const token = request.cookies.token || ""
       console.log("controller",token)
       const user = await getUserDetailsFromToken(token)
-      const {name,profile_pic} = request.body
+      const {name,email,password,profile_pic} = request.body
 
       const  updateUser = await UserModel.updateOne({_id:user._id},{
          name,
-         profile_pic
+         profile_pic,
+         email,
       })
       const userInformation = await UserModel.findById(user._id)
 

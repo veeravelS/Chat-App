@@ -1,18 +1,15 @@
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
+import { Outlet, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import axios from "axios";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { logout, setOnlineUser } from "./store/userSlice";
 import Sidebar from "./components/Sidebar";
-import logo from "./assets/logo.png"
 // import io from "socket.io-client"
-import { useSocket } from "./socket/socketContext";
+import { useSocket } from "./socket/socketContext";import Header from "./components/Header";
 const AppLayout = () => {
   const socket = useSocket();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
   const fetchUserDetails = async () => {
     const URL = `${import.meta.env.VITE_BACKEND_URL}/api/user-details`;
     try {
@@ -44,21 +41,16 @@ const AppLayout = () => {
     };
   }, [socket]);
 
-  const basePath = location.pathname === "/"
   return (
-    <div className="grid lg:grid-cols-[300px,1fr] h-screen max-h-screen">
-      <Toaster />
-      <section className={`bg-white ${!basePath && "hidden"} lg:block`}>
+    <div className="grid lg:grid-cols-[200px_1fr] relative overflow-hidden h-screen max-h-screen">
+      <section className={`bg-[#fcfbfc] overflow-y-auto border-[1px] lg:block`}>
         <Sidebar />
       </section>
-      <section className={`${basePath && "hidden"}`}>
+      <div className="#ffffff mx-10">
+      <Header />
+      <section className="h-[calc(100vh-100px)] scrollbar">
         <Outlet />
       </section>
-      <div className={`justify-center items-center flex-col gap-2 ${!basePath ? "hidden" : "lg:flex"}`}>
-        <div>
-          <img src={logo} width={200} alt="logo" />
-        </div>
-        <p className="text-lg mt-2 text-slate-500">Select user to send message</p>
       </div>
     </div>
   );

@@ -8,6 +8,7 @@ import ForgetPassword from "./pages/ForgetPassword";
 import ProtectedRoute from "./ProtectedRoute";
 import Login from "./pages/Login";
 import Auth from "./pages/auth/Auth";
+import UserProfile from "./pages/UserProfile";
 
 
 function App() {
@@ -21,7 +22,11 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<AppLayout />}>
             <Route index element={<Home />} />
-            <Route path=":userId" element={<MessagePage />} />
+            <Route path="message">
+              <Route index element={<MessagePage />} />
+              <Route path=":userId" element={<MessagePage />} />
+            </Route>
+            <Route path="profile" element={<UserProfile />} />
           </Route>
         </Route>
       </Routes>

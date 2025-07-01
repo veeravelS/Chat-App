@@ -8,6 +8,9 @@ const userSlice = createSlice({
        ? JSON.parse(localStorage.getItem("userDetails"))
         :JSON.parse(localStorage.getItem("userDetails")),
     onlineUser: [],
+    selectedUser: localStorage.getItem("selectedUser")
+      ? JSON.parse(localStorage.getItem("selectedUser"))
+      : null,
     token : localStorage.getItem("token") || null,
     socketConnection: null,
   },
@@ -23,6 +26,10 @@ const userSlice = createSlice({
     setOnlineUser: (state, action) => {
       state.onlineUser = action.payload;
     },
+    setSelectedUser: (state, action) => {
+      state.selectedUser = action.payload;
+      localStorage.setItem("selectedUser", JSON.stringify(action.payload));
+    },
     setSocketConnection: (state, action) => {
       state.socketConnection = action.payload;
     },
@@ -37,5 +44,5 @@ const userSlice = createSlice({
   },
 });
 
-export const { setUsers, setToken, logout, setOnlineUser,setSocketConnection } = userSlice.actions;
+export const { setUsers, setToken, logout, setOnlineUser,setSocketConnection,setSelectedUser } = userSlice.actions;
 export default userSlice.reducer;
