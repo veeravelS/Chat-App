@@ -96,7 +96,7 @@ const SignIn = ({ activeTab, setActiveTab }) => {
               </FormItem>
             )}
           />
-          <Button className="w-full mt-5 bg-[#efefef] text-black">
+          <Button className="w-full mt-5 hover:bg-white bg-[#efefef] text-black">
             Sign In
           </Button>
           <p className="text-center text-sm">
@@ -105,7 +105,7 @@ const SignIn = ({ activeTab, setActiveTab }) => {
               onClick={handleRegisterOpen}
               className="underline cursor-pointer"
             >
-              Sign Up
+              Sign up
             </span>
           </p>
         </div>
