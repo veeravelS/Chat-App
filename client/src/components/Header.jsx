@@ -1,13 +1,19 @@
 import { Bell, MessageSquare} from "lucide-react";
 import Avatar from "./Avatar";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Header = () => {
+  const pathnameChange = {
+    "/message" : "Message",
+    "/profile" : "Profile"
+  }
+  const location = useLocation();
+  const pathName = pathnameChange[location.pathname];
   const user = JSON.parse(localStorage.getItem("userDetails"));
   const navigate = useNavigate();
   return (
     <div className="w-full h-16 sticky top-0 bg-white border-b flex items-center justify-between">
-      <p className="font-bold text-md">Messages</p>
+      <p className="font-bold text-md">{pathName}</p>
       <div className="flex items-center gap-2 h-8">
         <div className="flex gap-4">
           <MessageSquare onClick={()=>navigate("/message")} className="cursor-pointer"  size={22} />
