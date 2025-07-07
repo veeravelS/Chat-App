@@ -173,9 +173,6 @@ const UserProfile = () => {
           <Divider />
         </div>
         <div className="flex justify-end gap-2 mt-3 col-span-2 w-full mr-auto">
-          <Button className="border-primary border text-primary bg-white px-4 py-1 hover:bg-white hover:text-primary rounded">
-            Cancel
-          </Button>
           <Button
             type="submit"
             className="border-secondary border bg-primary text-white px-7 py-1 rounded"

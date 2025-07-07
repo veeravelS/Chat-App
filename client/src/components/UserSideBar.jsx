@@ -6,6 +6,7 @@ import Avatar from "./Avatar";
 import { NavLink, useParams } from "react-router-dom";
 import { FiArrowUpLeft } from "react-icons/fi";
 import { MessageSquareMoreIcon } from "lucide-react";
+import SearchUser from "./SearchUser";
 
 const UserSideBar = () => {
   const user = useSelector((state) => state?.user?.userDetails);
@@ -60,7 +61,7 @@ const UserSideBar = () => {
   return (
     <div className="w-full">
       <div className="h-16 flex items-center">
-        <h2 className="text-md font-bold p-4 inline-flex items-center justify-center gap-2 text-slate-800">Messages <span><MessageSquareMoreIcon className="mt-0.5" size={15} /></span></h2>
+        <SearchUser />
       </div>
       <div className="bg-slate-200 p-[0.5px]"></div>
       <div className="h-full w-full overflow-x-hidden overflow-y-auto scrollbar">

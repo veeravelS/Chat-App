@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./index.css";
 import AppLayout from "./AppLayout";
 import MessagePage from "./components/MessagePage";
@@ -21,7 +21,7 @@ function App() {
           <Route path="forget-password" element={<ForgetPassword />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<AppLayout />}>
-            <Route index element={<Home />} />
+            <Route index element={<Navigate to="/message" replace />} />
             <Route path="message">
               <Route index element={<MessagePage />} />
               <Route path=":userId" element={<MessagePage />} />
