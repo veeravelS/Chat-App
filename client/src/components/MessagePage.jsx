@@ -8,21 +8,25 @@ import { IoCloseSharp } from "react-icons/io5";
 import uploadFile from "../helpers/uploadFile";
 import Loader from "./Loader";
 import backgroundImage from "../assets/wallapaper.jpeg";
+import darkBackgroundImage from "../assets/bg_dark_wallpaper.jpg";
 import moment from "moment";
 import { useSocket } from "../socket/socketContext";
 import UserSideBar from "./UserSideBar";
 import logo from "../assets/logo.png";
 import { SendHorizontal } from "lucide-react";
 import FileUploadComboBox from "./FileUploadComboBox";
+import { useTheme } from "next-themes";
 
 const MessagePage = () => {
   const params = useParams();
+  const {resolvedTheme} = useTheme();
   const [dataUser, setDataUser] = useState({});
   const [message, setMessage] = useState({
     text: "",
     imageUrl: "",
     videoUrl: "",
   });
+  const bgImage = resolvedTheme == "dark" ? darkBackgroundImage : backgroundImage;
   const [loading, setLoading] = useState(false);
   const [allMessage, setAllMessage] = useState([]);
   const currentMessageRef = useRef(null);
@@ -148,17 +152,17 @@ const MessagePage = () => {
   }, [socket]);
 
   return (
-    <div className="flex flex-row lg:flex-row rounded-md shadow-md border mt-5 h-[calc(100vh-105px)] w-full">
-      <div className="hidden lg:block w-[300px] h-full border-r border-slate-200">
+    <div className="flex flex-row lg:flex-row rounded-md bg-white text-black dark:bg-zinc-900 dark:text-white shadow-md border mt-5 h-[calc(100vh-105px)] w-full">
+      <div className={`hidden lg:block w-[300px] h-full border-r ${resolvedTheme == "dark"?"border-slate-800" : "border-slate-200"}`}>
         <UserSideBar />
       </div>
       <div
-        style={{ backgroundImage: `url(${backgroundImage})` }}
-        className={`bg-no-repeat bg-cover ${
+        style={{ backgroundImage: `url(${bgImage})` }}
+        className={` ${resolvedTheme=="dark"? "bg-contain" : "bg-contain"} z-30 ${
           !params.userId ? "hidden" : "block"
         } w-full h-full`}
       >
-        <header className="sticky flex items-center justify-between p-4 top-0 h-16 bg-white">
+        <header className="sticky flex items-center justify-between p-4 top-0 h-16 bg-white text-black dark:bg-zinc-900 dark:text-white dark:border-b">
           <div className="flex items-center gap-4">
             <Link to="/" className="lg:hidden">
               <FaAngleLeft size={25} />
@@ -192,15 +196,15 @@ const MessagePage = () => {
           </div>
         </header>
         {/* show all message */}
-        <section className="h-[calc(100vh-226px)] bg-slate-200 bg-opacity-50 relative overflow-x-hidden overflow-y-scroll scrollbar">
+        <section className={`h-[calc(100vh-226px)] bg-white text-black text-white ${resolvedTheme=="dark" ?"bg-opacity-0" : "bg-opacity-50"} relative overflow-x-hidden overflow-y-scroll scrollbar`}>
           <div ref={currentMessageRef} className="flex flex-col gap-2 py-2">
             {allMessage?.map((msg, index) => (
               <div
                 key={index}
                 className={`p-1 py-1 rounded w-fit max-w-[280px] md:max-w-sm lg:max-w-md ${
                   user._id == msg.messageByUserId
-                    ? "ml-auto bg-teal-100"
-                    : "bg-white"
+                    ? "ml-auto bg-teal-100 bg-teal-100 text-black dark:bg-teal-900 dark:text-white"
+                    : "bg-slate-50 text-black dark:bg-gray-100 dark:text-black"
                 }`}
               >
                 {msg.imageUrl && (
@@ -221,7 +225,7 @@ const MessagePage = () => {
                   </div>
                 )}
                 <p className="px-2 rounded w-fit">{msg.text}</p>
-                <p className="px-2 rounded w-full text-xs text-gray-800 text-right">
+                <p className={`px-2 rounded w-full text-xs text-gray-800 text-black ${ user._id == msg.messageByUserId ? "dark:text-white":"text-black" } text-right`}>
                   {moment(msg.createdAt).format("hh:mm A")}
                 </p>
               </div>
@@ -275,7 +279,7 @@ const MessagePage = () => {
         </section>
 
         {/* send message */}
-        <section className="h-14 bg-white rounded-br-md flex items-center px-4">
+        <section className="h-14 bg-white text-black dark:bg-zinc-900 dark:text-white rounded-br-md flex items-center  px-4">
           <div className="relative">
             <FileUploadComboBox
               onImageSelect={handleUploadImage}
@@ -304,7 +308,7 @@ const MessagePage = () => {
         </section>
       </div>
       <div
-        className={`justify-center w-full items-center flex-col gap-2 ${
+        className={`justify-center w-full bg-white text-black dark:bg-zinc-900 dark:text-white items-center flex-col gap-2 ${
           params.userId ? "hidden" : "lg:flex"
         }`}
       >

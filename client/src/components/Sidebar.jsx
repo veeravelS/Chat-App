@@ -6,7 +6,7 @@ import {
 } from "@radix-ui/react-tooltip";
 import { cn } from "../lib/utils";
 import {FileText, User, LogOut } from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, matchPath, useLocation, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import { logout } from "../store/userSlice";
 import { useDispatch } from "react-redux";
@@ -31,6 +31,9 @@ export default function Sidebar() {
     dispatch(logout());
     navigate("/auth");
   };
+  const isActive = (href) => {
+  return matchPath({ path: href, end: false }, pathname);
+};
 
   // Close the modal when clicking outside
   const handleClickOutside = (event) => {
@@ -44,7 +47,7 @@ export default function Sidebar() {
   return (
     <>
       <TooltipProvider delayDuration={100}>
-        <aside className="fixed inset-y-0 left-0 z-10 hidden w-[12rem] flex-col border-r bg-background sm:flex">
+        <aside className="fixed inset-y-0 left-0 z-10 hidden w-[12rem] flex-col border-r dark:bg-zinc-900 dark:text-white sm:flex">
           <div className="flex items-center justify-center h-16 border-b">
             <img src={logo} alt="logo" width={120} />
           </div>
@@ -57,7 +60,7 @@ export default function Sidebar() {
                       to={link.href}
                       className={cn(
                         "flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                        pathname === link.href
+                        isActive(link.href)
                           ? "bg-accent text-accent-foreground"
                           : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
                       )}
@@ -97,10 +100,10 @@ export default function Sidebar() {
             </Tooltip>
             {
               logModalOpen && (
-                 <div ref={logRef} className="w-35 mb-40 -ml-10 bg-white shadow-md p-4 gap-3">
+                 <div ref={logRef} className="w-35 mb-40 -ml-10 bg-white rounded-lg dark:bg-zinc-800 shadow-md p-4 gap-3">
                   <p className="text-sm">Do you really want to logout?</p>
                   <div className="flex flex-row mt-1">
-                  <Button className="mr-2 px-5" onClick={() => setLogModalOpen(false)}>No</Button>
+                  <Button className="mr-2 px-5 bg-white hover:bg-white text-black" onClick={() => setLogModalOpen(false)}>No</Button>
                    <Button  onClick={handleLogout} className="bg-primary px-5">Yes</Button>
                   </div>
                  </div>

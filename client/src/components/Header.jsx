@@ -1,23 +1,55 @@
-import { Bell, MessageSquare} from "lucide-react";
+import { Bell, MessageSquare, Moon, Sun } from "lucide-react";
 import Avatar from "./Avatar";
-import { useLocation, useNavigate } from "react-router-dom";
+import { matchPath, useLocation, useNavigate } from "react-router-dom";
+import { useTheme } from "next-themes";
+import { Button } from "./ui/button";
 
 const Header = () => {
   const pathnameChange = {
-    "/message" : "Message",
-    "/profile" : "Profile"
-  }
+    "/message": "Message",
+    "/message/:userId":"Message",
+    "/profile": "Profile",
+  };
   const location = useLocation();
+  const { theme, setTheme } = useTheme();
   const pathName = pathnameChange[location.pathname];
   const user = JSON.parse(localStorage.getItem("userDetails"));
   const navigate = useNavigate();
+  const getPageTitle = () => {
+  for (const path in pathnameChange) {
+    if (matchPath({ path, end: false }, location.pathname)) {
+      return pathnameChange[path];
+    }
+  }
+  return "Dashboard"; // fallback
+};
+
+const pageTitle = getPageTitle();
   return (
-    <div className="w-full h-16 sticky top-0 bg-white border-b flex items-center justify-between">
-      <p className="font-bold text-md">{pathName}</p>
+    <div className="w-full h-16 sticky top-0 bg-white text-black dark:bg-zinc-900 dark:text-white border-b flex items-center justify-between">
+      <p className="font-bold text-md">{pageTitle}</p>
       <div className="flex items-center gap-2 h-8">
-        <div className="flex gap-4">
-          <MessageSquare onClick={()=>navigate("/message")} className="cursor-pointer"  size={22} />
+        <div className="flex gap-3 items-center">
+          <MessageSquare
+            onClick={() => navigate("/message")}
+            className="cursor-pointer"
+            size={22}
+          />
           <Bell className="cursor-pointer" size={22} />
+          <div>
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full p-3"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            >
+              {theme === "dark" ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Moon className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
         </div>
         <div className="h-full w-[1.5px] bg-gray-300" />
         <Avatar

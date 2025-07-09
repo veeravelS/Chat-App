@@ -7,8 +7,10 @@ import { NavLink, useParams } from "react-router-dom";
 import { FiArrowUpLeft } from "react-icons/fi";
 import { MessageSquareMoreIcon } from "lucide-react";
 import SearchUser from "./SearchUser";
+import { useTheme } from "next-themes";
 
 const UserSideBar = () => {
+  const {resolvedTheme} = useTheme();
   const user = useSelector((state) => state?.user?.userDetails);
   const socket = useSocket();
   const params = useParams();
@@ -58,12 +60,13 @@ const UserSideBar = () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [socket, user?._id]);
+  console.log(params)
   return (
-    <div className="w-full">
+    <div className="w-full overflow-y-scroll">
       <div className="h-16 flex items-center">
-        <SearchUser />
+        <SearchUser setAllUser={setAllUser} allUser={allUser} />
       </div>
-      <div className="bg-slate-200 p-[0.5px]"></div>
+      <div className={`${resolvedTheme == "dark" ? "bg-slate-800 p-[0.5px]" : "bg-slate-200 p-[0.5px]"}`}></div>
       <div className="h-full w-full overflow-x-hidden overflow-y-auto scrollbar">
         {allUser.length === 0 && (
           <div className="mt-10">
@@ -80,8 +83,8 @@ const UserSideBar = () => {
             <NavLink
               to={`/message/${conv?.userDetails._id}`}
               key={conv._id}
-              className={`flex items-center hover:bg-gray-100 ${
-                conv?.userDetails._id === params.userId ? "bg-gray-100" : ""
+              className={`flex items-center hover:bg-gray-100  text-black dark:bg-zinc-900 dark:text-white dark:hover:bg-zinc-800 dark:hover:text-white ${
+                conv?.userDetails._id == params.userId ? "dark:bg-zinc-700 dark:text-white bg-gray-100 text-black" : ""
               } gap-2 py-2 px-2 border-b`}
             >
               <div>

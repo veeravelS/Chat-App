@@ -4,7 +4,6 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { logout, setOnlineUser } from "./store/userSlice";
 import Sidebar from "./components/Sidebar";
-// import io from "socket.io-client"
 import { useSocket } from "./socket/socketContext";import Header from "./components/Header";
 const AppLayout = () => {
   const socket = useSocket();
@@ -41,12 +40,23 @@ const AppLayout = () => {
     };
   }, [socket]);
 
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+
+    if (savedTheme === 'dark' || !savedTheme) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark'); // optional, to persist default
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
   return (
-    <div className="grid lg:grid-cols-[200px_1fr] relative overflow-hidden h-screen max-h-screen">
-      <section className={`bg-[#fcfbfc] overflow-y-auto border-[1px] lg:block`}>
+    <div className="grid lg:grid-cols-[200px_1fr] bg-white text-black dark:bg-zinc-900 dark:text-white relative overflow-hidden h-screen max-h-screen">
+      <section className={`bg-[#fcfbfc] dark:bg-zinc-900 overflow-y-auto border-[1px] lg:block`}>
         <Sidebar />
       </section>
-      <div className="#ffffff mx-10">
+      <div className="#ffffff  mx-10">
       <Header />
       <section className="h-[calc(100vh-100px)] scrollbar">
         <Outlet />
