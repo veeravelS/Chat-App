@@ -12,9 +12,16 @@ const {
 } = require("../model/conversationModel");
 // Socket connection
 const server = http.createServer(app);
+const allowedOrigins = process.env.FRONTEND_URL.split(",");
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+     origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
     credentials: true,
   },
 });
