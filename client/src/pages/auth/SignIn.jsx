@@ -11,11 +11,13 @@ import {
   FormControl,
   FormMessage,
 } from "../../components/ui/form";
-import {useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setToken, setUsers } from "../../store/userSlice";
 import axios from "axios";
 import { toast } from "sonner";
+import { Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -27,6 +29,7 @@ const formSchema = z.object({
 const SignIn = ({ activeTab, setActiveTab }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [show,setShow] = useState(false);
   const handleRegisterOpen = () => {
     setActiveTab("register");
     console.log("register open");
@@ -56,13 +59,16 @@ const SignIn = ({ activeTab, setActiveTab }) => {
       localStorage.setItem("token", response?.data?.token);
       navigate("/");
     } catch (error) {
-      toast.error(error?.response?.data?.message);
+      toast.error(error?.response?.data?.message || "Sign in failed");
       console.log(error);
     }
   };
   return (
     <Form {...form} className="w-full">
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-[60%]">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-6 w-[60%]"
+      >
         <h1 className="text-3xl font-semibold text-start">Sign In</h1>
         <div className="flex flex-col gap-3 mt-10">
           <FormField
@@ -86,11 +92,20 @@ const SignIn = ({ activeTab, setActiveTab }) => {
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input
-                    type="password"
-                    placeholder="Enter your password"
-                    {...field}
-                  />
+                  <div className="relative">
+                    <Input
+                      type={show ? "text" : "password"}
+                      placeholder="Enter your password"
+                      {...field}
+                      className="pr-10" // space for the icon
+                    />
+                    <div
+                      className="absolute inset-y-0 right-2 flex items-center cursor-pointer"
+                      onClick={() => setShow((prev) => !prev)}
+                    >
+                      {show ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </div>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>

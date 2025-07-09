@@ -1,4 +1,4 @@
-import { Bell, MessageSquare, Moon, Sun } from "lucide-react";
+import { Bell, MessageCircleMore, Moon, Sun } from "lucide-react";
 import Avatar from "./Avatar";
 import { matchPath, useLocation, useNavigate } from "react-router-dom";
 import { useTheme } from "next-themes";
@@ -30,7 +30,7 @@ const pageTitle = getPageTitle();
       <p className="font-bold text-md">{pageTitle}</p>
       <div className="flex items-center gap-2 h-8">
         <div className="flex gap-3 items-center">
-          <MessageSquare
+          <MessageCircleMore
             onClick={() => navigate("/message")}
             className="cursor-pointer"
             size={22}

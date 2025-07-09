@@ -14,6 +14,8 @@ import {
   FormMessage,
 } from "../../components/ui/form";
 import { toast } from "sonner";
+import { Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name is required" }),
   email: z.string().email({ message: "Invalid email address" }),
@@ -25,7 +27,7 @@ const formSchema = z.object({
   }),
 });
 const SignUp = ({ activeTab, setActiveTab }) => {
-  // const [uploadPhoto, setUploadPhoto] = useState("");
+  const [show,setShow] = useState(false);
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -57,7 +59,7 @@ const SignUp = ({ activeTab, setActiveTab }) => {
         setActiveTab("login");
       }
     } catch (error) {
-      toast.error(error?.response?.data?.message);
+      toast.error(error?.response?.data?.message || "Signup failed");
       console.log(error);
     }
   };
@@ -104,12 +106,21 @@ const SignUp = ({ activeTab, setActiveTab }) => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input
-                    type="password"
-                    placeholder="Enter your password"
-                    {...field}
-                  />
+               <FormControl>
+                  <div className="relative">
+                    <Input
+                      type={show ? "text" : "password"}
+                      placeholder="Enter your password"
+                      {...field}
+                      className="pr-10" // space for the icon
+                    />
+                    <div
+                      className="absolute inset-y-0 right-2 flex items-center cursor-pointer"
+                      onClick={() => setShow((prev) => !prev)}
+                    >
+                      {show ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </div>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
