@@ -111,7 +111,7 @@ const SignIn = ({ activeTab, setActiveTab }) => {
               </FormItem>
             )}
           />
-          <Button className="w-full mt-5 hover:bg-white bg-[#efefef] text-black">
+          <Button className="w-full mt-5 hover:bg-white text-black">
             Sign In
           </Button>
           <p className="text-center text-sm">

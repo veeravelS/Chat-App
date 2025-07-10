@@ -165,8 +165,7 @@ const SignUp = ({ activeTab, setActiveTab }) => {
           />
           <Button
             type="submit"
-            variant="secondary"
-            className="w-[100%] mt-2 bg-[#efefef] text-black"
+            className="w-[100%] mt-2 text-black"
           >
             Sign Up
           </Button>
