@@ -232,14 +232,14 @@ const MessagePage = () => {
             ))}
           </div>
           {message.imageUrl && (
-            <div className="w-full h-full sticky bottom-0 bg-slate-700 bg-opacity-30 flex justify-center items-center">
+            <div className="w-full h-full  sticky bottom-0 bg-slate-900 bg-opacity-30 flex justify-center items-center">
               <div
                 onClick={handleClearUploadImage}
-                className="w-fit p-2 absolute top-0 right-0 cursor-pointer hover:text-red-600"
+                className="w-fit p-1 rounded-full absolute top-1 right-1 cursor-pointer bg-red-600"
               >
-                <IoCloseSharp size={25} />
+                <IoCloseSharp size={16} />
               </div>
-              <div className="bg-white p-3">
+              <div className="dark:bg-zinc-800 bg-gray-300 p-3">
                 <img
                   className="aspect-square w-full h-full max-w-sm m-2 object-scale-down"
                   src={message.imageUrl}
@@ -254,11 +254,11 @@ const MessagePage = () => {
             <div className="w-full h-full sticky bottom-0 bg-slate-700 bg-opacity-30 flex justify-center items-center">
               <div
                 onClick={handleClearUploadVideo}
-                className="w-fit p-2 absolute top-0 right-0 cursor-pointer hover:text-red-600"
+                className="w-fit p-2 absolute bg-black top-0 right-0 cursor-pointer dark:text-white !text-black hover:text-red-600"
               >
                 <IoCloseSharp size={25} />
               </div>
-              <div className="bg-white p-3">
+              <div className="dark:bg-zinc-800 bg-gray-300 p-3">
                 <video
                   className="aspect-square w-full h-full max-w-sm m-2 object-scale-down"
                   src={message.videoUrl}

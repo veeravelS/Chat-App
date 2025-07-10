@@ -138,7 +138,7 @@ const SignUp = ({ activeTab, setActiveTab }) => {
           control={form.control}
           name="terms"
           render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md">
+            <FormItem className="flex flex-row items-center  space-x-3 space-y-0 rounded-md">
               <FormControl>
                 <Checkbox
                   checked={field.value}
