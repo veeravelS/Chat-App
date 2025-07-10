@@ -20,27 +20,24 @@ import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 
 const formSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
-  password: z
-    .string()
-    .min(6, { message: "Password must be at least 6 characters" }),
+  email: z.string().min(1, { message: "Email is required" })
+            .email({ message: "Invalid email address" }),
+  password: z.string().min(1, { message: "Password is required" })
+            .min(6, { message: "Password must be at least 6 characters" }),
 });
 
 const SignIn = ({ activeTab, setActiveTab }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [show,setShow] = useState(false);
-  const handleRegisterOpen = () => {
-    setActiveTab("register");
-    console.log("register open");
-  };
-
+  const [show, setShow] = useState(false);
+  
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
       password: "",
     },
+    mode: "onChange", // Validate on every change
   });
 
   const onSubmit = async (values) => {
@@ -54,7 +51,6 @@ const SignIn = ({ activeTab, setActiveTab }) => {
       toast.success(response?.data?.message);
       form.reset();
       dispatch(setUsers(response?.data.data));
-      // localStorage.setItem("userDetails", JSON.stringify(response?.data.data));
       dispatch(setToken(response?.data?.token));
       localStorage.setItem("token", response?.data?.token);
       navigate("/");
@@ -63,67 +59,78 @@ const SignIn = ({ activeTab, setActiveTab }) => {
       console.log(error);
     }
   };
+
   return (
-    <Form {...form} className="w-full">
+    <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 w-[60%]"
+        className="w-full max-w-[24rem] space-y-6"
       >
         <h1 className="text-3xl font-semibold text-start">Sign In</h1>
-        <div className="flex flex-col gap-3 mt-10">
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter your email" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input 
+                  placeholder="Enter your email" 
+                  {...field} 
+                  onBlur={() => form.trigger("email")} // Trigger validation on blur
+                />
+              </FormControl>
+              <FormMessage className="text-xs text-red-500 min-h-[20px] block" />
+            </FormItem>
+          )}
+        />
 
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <Input
-                      type={show ? "text" : "password"}
-                      placeholder="Enter your password"
-                      {...field}
-                      className="pr-10" // space for the icon
-                    />
-                    <div
-                      className="absolute inset-y-0 right-2 flex items-center cursor-pointer"
-                      onClick={() => setShow((prev) => !prev)}
-                    >
-                      {show ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </div>
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Password</FormLabel>
+              <FormControl>
+                <div className="relative">
+                  <Input
+                    type={show ? "text" : "password"}
+                    placeholder="Enter your password"
+                    {...field}
+                    className="pr-10"
+                    onBlur={() => form.trigger("password")} // Trigger validation on blur
+                  />
+                  <div
+                    className="absolute inset-y-0 right-2 flex items-center cursor-pointer"
+                    onClick={() => setShow((prev) => !prev)}
+                  >
+                    {show ? <EyeOff size={18} /> : <Eye size={18} />}
                   </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button className="w-full mt-5 hover:bg-white text-black">
-            Sign In
-          </Button>
-          <p className="text-center text-sm">
-            Don't have an account?{" "}
-            <span
-              onClick={handleRegisterOpen}
-              className="underline cursor-pointer"
-            >
-              Sign up
-            </span>
-          </p>
-        </div>
+                </div>
+              </FormControl>
+              <FormMessage className="text-xs text-red-500 min-h-[20px] block" />
+            </FormItem>
+          )}
+        />
+
+        <Button 
+          type="submit" 
+          className="w-full mt-5 hover:bg-white text-black"
+          disabled={!form.formState.isValid} // Disable if form is invalid
+        >
+          Sign In
+        </Button>
+        
+        <p className="text-center text-sm">
+          Don't have an account?{" "}
+          <span
+            onClick={() => setActiveTab("register")}
+            className="underline cursor-pointer hover:text-primary"
+          >
+            Sign up
+          </span>
+        </p>
       </form>
     </Form>
   );

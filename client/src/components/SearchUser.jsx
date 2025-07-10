@@ -44,12 +44,11 @@ const SearchUser = ({ onClose, allUser, setAllUser }) => {
   };
 
   const handleSelect = (user) => {
-    const isUser = allUser.some(u => String(u._id) === String(user._id));
+    const isUser = allUser.some((u) => String(u._id) === String(user._id));
     if (!isUser) {
       setSelectedUserId(user._id);
     }
     setSearch("");
-    onClose?.();
   };
 
   return (
@@ -73,7 +72,10 @@ const SearchUser = ({ onClose, allUser, setAllUser }) => {
             </Button>
           </ComboboxTrigger>
           <ComboboxContent className="w-[300px] dark:bg-zinc-900 bg-white p-0">
-            <Command shouldFilter={false} className="dark:bg-zinc-900 dark:text-white bg-white text-black">
+            <Command
+              shouldFilter={false}
+              className="dark:bg-zinc-900 dark:text-white bg-white text-black"
+            >
               <CommandInput
                 value={search}
                 onValueChange={handleSearchUser}
@@ -87,7 +89,14 @@ const SearchUser = ({ onClose, allUser, setAllUser }) => {
                   <ComboboxItem
                     key={user._id}
                     value={String(user._id)}
-                    onSelect={() => handleSelect(user)}
+                    onSelect={(currentValue) => {
+                      if (currentValue === String(user._id)) {
+                        handleSelect(user);
+                        document.dispatchEvent(
+                          new KeyboardEvent("keydown", { key: "Escape" })
+                        );
+                      }
+                    }}
                   >
                     <Link
                       to={`/message/${user._id}`}
@@ -105,9 +114,7 @@ const SearchUser = ({ onClose, allUser, setAllUser }) => {
                         <div className="font-semibold line-clamp-1">
                           {user.name}
                         </div>
-                        <p className="text-sm line-clamp-1">
-                          {user.email}
-                        </p>
+                        <p className="text-sm line-clamp-1">{user.email}</p>
                       </div>
                     </Link>
                   </ComboboxItem>

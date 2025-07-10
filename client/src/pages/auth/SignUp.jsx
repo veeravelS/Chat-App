@@ -16,40 +16,33 @@ import {
 import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
+
 const formSchema = z.object({
-  name: z.string().min(2, { message: "Name is required" }),
-  email: z.string().email({ message: "Invalid email address" }),
-  password: z
-    .string()
-    .min(6, { message: "Password must be at least 6 characters" }),
+  name: z.string().min(2, { message: "Name must be at least 2 characters" }),
+  email: z.string().min(1, { message: "Email is required" })
+            .email({ message: "Invalid email address" }),
+  password: z.string().min(1, { message: "Password is required" })
+            .min(6, { message: "Password must be at least 6 characters" }),
   terms: z.literal(true, {
     errorMap: () => ({ message: "You must accept terms and conditions" }),
   }),
 });
+
 const SignUp = ({ activeTab, setActiveTab }) => {
-  const [show,setShow] = useState(false);
+  const [show, setShow] = useState(false);
+  
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       email: "",
       password: "",
-      terms: false, // Default value for terms checkbox
+      terms: false,
     },
+    mode: "onChange", // Validate on each change
   });
-  // const handleUploadPhoto = async (e) => {
-  //   const files = e.target.files[0];
-  //   const uploadPhoto = await uploadFile(files);
-  //   setData((prev)=>({...prev,profile_pic:uploadPhoto.secure_url}))
-  //   setUploadPhoto(files);
-  // };
-
-  // const handleClearUploadPhoto = () => {
-  //   setUploadPhoto("");
-  // };
 
   const onSubmit = async (values) => {
-    console.log("values", values);
     const URL = `${import.meta.env.VITE_BACKEND_URL}/api/register`;
     try {
       const response = await axios.post(URL, { ...values });
@@ -66,119 +59,119 @@ const SignUp = ({ activeTab, setActiveTab }) => {
 
   const handleLoginOpen = () => {
     setActiveTab("login");
-    console.log("login open");
   };
+
   return (
-    <Form {...form} className="w-full">
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-[60%]">
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-[24rem] space-y-6">
         <h1 className="text-3xl font-semibold text-start">Create an account</h1>
-        <div className="flex flex-col gap-3 w-full mt-10">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter your name" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter your email" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        
+        {/* Name Field */}
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input 
+                  placeholder="Enter your name" 
+                  {...field} 
+                  onBlur={() => form.trigger("name")}
+                />
+              </FormControl>
+              <FormMessage className="text-xs text-red-500 min-h-[20px] block" />
+            </FormItem>
+          )}
+        />
 
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-               <FormControl>
-                  <div className="relative">
-                    <Input
-                      type={show ? "text" : "password"}
-                      placeholder="Enter your password"
-                      {...field}
-                      className="pr-10" // space for the icon
-                    />
-                    <div
-                      className="absolute inset-y-0 right-2 flex items-center cursor-pointer"
-                      onClick={() => setShow((prev) => !prev)}
-                    >
-                      {show ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </div>
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          {/* <div className="grid w-full max-w-[90%]  items-center gap-3">
-          <Label htmlFor="name">Name</Label>
-          <Input
-            type="text"
-            id="name"
-            placeholder="Enter Name"
-            className="w-full"
+        {/* Email Field */}
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input 
+                  placeholder="Enter your email" 
+                  {...field} 
+                  onBlur={() => form.trigger("email")}
+                />
+              </FormControl>
+              <FormMessage className="text-xs text-red-500 min-h-[20px] block" />
+            </FormItem>
+          )}
+        />
 
-          />
-        </div>
-        <div className="grid w-full max-w-[90%] items-center gap-3">
-          <Label htmlFor="email">Email</Label>
-          <Input type="email" id="email" placeholder="Enter Email" />
-        </div>
-        <div className="grid w-full max-w-[90%] items-center gap-3">
-          <Label htmlFor="password">Password</Label>
-          <Input type="password" id="password" placeholder="Enter Password" />
-        </div> */}
-          <FormField
-            control={form.control}
-            name="terms"
-            render={({ field }) => (
-              <FormItem className="flex justify-start items-center space-x-2">
-                <FormControl>
-                  <Checkbox
-                    id="terms"
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
+        {/* Password Field */}
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Password</FormLabel>
+              <FormControl>
+                <div className="relative">
+                  <Input
+                    type={show ? "text" : "password"}
+                    placeholder="Enter your password"
+                    {...field}
+                    className="pr-10"
+                    onBlur={() => form.trigger("password")}
                   />
-                </FormControl>
-                <FormLabel htmlFor="terms" className="pb-2">
+                  <div
+                    className="absolute inset-y-0 right-2 flex items-center cursor-pointer"
+                    onClick={() => setShow((prev) => !prev)}
+                  >
+                    {show ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </div>
+                </div>
+              </FormControl>
+              <FormMessage className="text-xs text-red-500 min-h-[20px] block" />
+            </FormItem>
+          )}
+        />
+
+        {/* Terms Checkbox */}
+        <FormField
+          control={form.control}
+          name="terms"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel className="cursor-pointer">
                   Accept terms and conditions
                 </FormLabel>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button
-            type="submit"
-            className="w-[100%] mt-2 text-black"
+                <FormMessage className="text-xs text-red-500 min-h-[20px] block" />
+              </div>
+            </FormItem>
+          )}
+        />
+
+        <Button 
+          type="submit" 
+          className="w-full mt-2 text-black"
+          disabled={!form.formState.isValid}
+        >
+          Sign Up
+        </Button>
+
+        <p className="text-center text-sm">
+          Already have an account?{" "}
+          <span
+            onClick={handleLoginOpen}
+            className="underline hover:cursor-pointer hover:text-primary"
           >
-            Sign Up
-          </Button>
-          <p className="text-center text-sm">
-            Already have an account?{" "}
-            <span
-              onClick={handleLoginOpen}
-              className="underline hover:cursor-pointer"
-            >
-              Sign in
-            </span>
-          </p>
-        </div>
+            Sign in
+          </span>
+        </p>
       </form>
     </Form>
   );
