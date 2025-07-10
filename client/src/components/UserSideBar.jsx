@@ -84,7 +84,7 @@ const UserSideBar = () => {
               to={`/message/${conv?.userDetails._id}`}
               key={conv._id}
               className={`flex items-center hover:bg-gray-100  text-black dark:bg-zinc-900 dark:text-white dark:hover:bg-zinc-800 dark:hover:text-white ${
-                conv?.userDetails._id == params.userId ? "dark:bg-zinc-700 dark:text-white bg-gray-100 text-black" : ""
+                conv?.userDetails._id == params.userId ? "dark:!bg-zinc-800 dark:text-white bg-gray-100 text-black" : ""
               } gap-2 py-2 px-2 border-b`}
             >
               <div>
@@ -126,7 +126,7 @@ const UserSideBar = () => {
                 </div>
               </div>
               {Boolean(conv?.unseenMsg) && (
-                <p className="text-xs w-6 h-6 flex justify-center items-center bg-primary text-white rounded-full ml-auto">
+                <p className="text-xs w-5 h-5 flex justify-center items-center bg-primary text-white rounded-full ml-auto">
                   {conv?.unseenMsg}
                 </p>
               )}

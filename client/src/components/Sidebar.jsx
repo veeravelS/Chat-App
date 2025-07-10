@@ -5,7 +5,7 @@ import {
   TooltipTrigger,
 } from "@radix-ui/react-tooltip";
 import { cn } from "../lib/utils";
-import {FileText, User, LogOut } from "lucide-react";
+import { FileText, User, LogOut } from "lucide-react";
 import { Link, matchPath, useLocation, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import { logout } from "../store/userSlice";
@@ -29,11 +29,14 @@ export default function Sidebar() {
 
   const handleLogout = () => {
     dispatch(logout());
+    localStorage.clear();
+    // localStorage.removeItem("token");
+    // localStorage.removeItem("user");
     navigate("/auth");
   };
   const isActive = (href) => {
-  return matchPath({ path: href, end: false }, pathname);
-};
+    return matchPath({ path: href, end: false }, pathname);
+  };
 
   // Close the modal when clicking outside
   const handleClickOutside = (event) => {
@@ -98,17 +101,25 @@ export default function Sidebar() {
                 </TooltipContent>
               )}
             </Tooltip>
-            {
-              logModalOpen && (
-                 <div ref={logRef} className="w-35 mb-40 -ml-10 bg-white rounded-lg dark:bg-zinc-800 shadow-md p-4 gap-3">
-                  <p className="text-sm">Do you really want to logout?</p>
-                  <div className="flex flex-row mt-1">
-                  <Button className="mr-2 px-5 bg-white hover:bg-white text-black" onClick={() => setLogModalOpen(false)}>No</Button>
-                   <Button  onClick={handleLogout} className="bg-primary px-5">Yes</Button>
-                  </div>
-                 </div>
-              )
-            }
+            {logModalOpen && (
+              <div
+                ref={logRef}
+                className="w-35 mb-40 -ml-10 bg-white rounded-lg dark:bg-zinc-800 shadow-md p-4 gap-3"
+              >
+                <p className="text-sm">Do you really want to logout?</p>
+                <div className="flex flex-row mt-1">
+                  <Button
+                    className="mr-2 px-5 bg-white hover:bg-white text-black"
+                    onClick={() => setLogModalOpen(false)}
+                  >
+                    No
+                  </Button>
+                  <Button onClick={handleLogout} className="bg-primary px-5">
+                    Yes
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </aside>
       </TooltipProvider>
