@@ -11,7 +11,7 @@ const userSlice = createSlice({
     selectedUser: localStorage.getItem("selectedUser")
       ? JSON.parse(localStorage.getItem("selectedUser"))
       : null,
-    token : localStorage.getItem("token") || null,
+    token : sessionStorage.getItem("token") || null,
     socketConnection: null,
   },
   reducers: {
@@ -21,7 +21,7 @@ const userSlice = createSlice({
     },
     setToken: (state, action) => {
       state.token = action.payload;
-      localStorage.setItem("token", action.payload);
+      sessionStorage.setItem("token", action.payload);
     },
     setOnlineUser: (state, action) => {
       state.onlineUser = action.payload;

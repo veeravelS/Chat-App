@@ -52,7 +52,7 @@ const SignIn = ({ activeTab, setActiveTab }) => {
       form.reset();
       dispatch(setUsers(response?.data.data));
       dispatch(setToken(response?.data?.token));
-      localStorage.setItem("token", response?.data?.token);
+      sessionStorage.setItem("token", response?.data?.token);
       navigate("/");
     } catch (error) {
       toast.error(error?.response?.data?.message || "Sign in failed");

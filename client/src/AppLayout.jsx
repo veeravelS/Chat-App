@@ -18,7 +18,7 @@ const AppLayout = () => {
       if (response.data.logout) {
         dispatch(logout());
         localStorage.clear();
-        localStorage.removeItem("token");
+        sessionStorage.removeItem("token");
         localStorage.removeItem("user");
         navigate("/auth");
       }
